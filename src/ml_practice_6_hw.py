@@ -9,9 +9,9 @@ Original file is located at
 #  Семинар 7, домашка
 """
 
-pip install pytorch-ignite
+#pip install pytorch-ignite
 
-pip install torchsummary
+#pip install torchsummary
 
 import torch
 from torch import nn

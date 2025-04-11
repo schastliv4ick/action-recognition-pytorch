@@ -1,1 +1,1 @@
-PATH_TO_DATA = "D:\VS\ml\human_poses_data\yandex-ml-2025\data\img_test"
+PATH_TO_DATA = "D:\\VS\\ml\\human_poses_data\\yandex-ml-2025\\data"
