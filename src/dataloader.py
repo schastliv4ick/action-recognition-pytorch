@@ -34,7 +34,7 @@ class PeopleDataset(Dataset):
 
 def get_train_transforms():
     return transforms.Compose([
-        transforms.Resize((256, 512)),
+        transforms.Resize((288, 512)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
@@ -42,7 +42,7 @@ def get_train_transforms():
 
 def get_val_transforms():
     return transforms.Compose([
-        transforms.Resize((256, 512)),
+        transforms.Resize((288, 512)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])

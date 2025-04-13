@@ -15,8 +15,8 @@ from utils.engine import setup_trainer, setup_evaluators
 from utils.logging import setup_event_handlers, setup_metrics_history
 from utils.plotting import plot_metrics, visualize_predictions
 
-from config import PATH_TO_DATA
-
+# from config import PATH_TO_DATA
+PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""
@@ -34,8 +34,9 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = MiniSimpleton(device)
-    summary(model, (3, 256, 512))
+    model = SimplifiedYOLOLike(num_classes=20, device=device)
+    # summary(model, (3, 256, 512))
+    summary(model, (3, 288, 512))
     print("\n")
 
     """Preparing the data"""
