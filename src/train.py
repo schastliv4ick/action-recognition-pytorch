@@ -1,7 +1,8 @@
 from tqdm import tqdm
 import torch
 from torch import device, cuda
-from torch.optim import SGD
+from torch.optim import SGD, AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn import CrossEntropyLoss
 from torchsummary import summary
 from sklearn.metrics import precision_score, recall_score, f1_score
@@ -16,6 +17,7 @@ from utils.logging import setup_event_handlers, setup_metrics_history
 from utils.plotting import plot_metrics, visualize_predictions
 
 # from config import PATH_TO_DATA
+PATH_TO_DATA = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data"
 PATH_TO_DATA = "V:\\ML\\yandex-ml-2025\\data"
 
 def calculate_metrics(preds, targets):
@@ -34,8 +36,8 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = SimplifiedYOLOLike(num_classes=20, device=device)
-    # summary(model, (3, 256, 512))
+    model = PoseCNN(num_classes=20)
+    model.to(device)
     summary(model, (3, 288, 512))
     print("\n")
 
@@ -59,10 +61,11 @@ if __name__ == "__main__":
     )
 
     """Training setup"""
-    LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.001
     MOMENTUM = 0.9
 
-    optimizer = SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+    optimizer = AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
+    scheduler = CosineAnnealingLR(optimizer, T_max=50)
     criterion = CrossEntropyLoss()
 
     print("Initializing trainer and evaluators...")
@@ -71,7 +74,7 @@ if __name__ == "__main__":
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
 
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 50
     print(f"\nStarting training for {NUM_EPOCHS} epochs...")
 
     for epoch in range(NUM_EPOCHS):
