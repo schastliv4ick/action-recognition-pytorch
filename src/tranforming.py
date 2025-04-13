@@ -30,7 +30,7 @@ transform = transforms.Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     
     # Случайное вращение изображения (до 30 градусов)
-    transforms.RandomRotation(degrees=30),
+    transforms.RandomRotation(degrees=15),
     
     # Случайное изменение размера и обрезка
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
@@ -42,7 +42,53 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     
     # Нормализация изображения (стандартные значения для ImageNet)
-    #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+transform1 = transforms.Compose([
+    # 1. Повороты: Поворачивайте изображение на случайный угол в диапазоне [-30°, +30°]
+    transforms.RandomRotation(degrees=(-30, 30)),
+    
+    # 2. Отражение по горизонтали: Отразите изображение по горизонтали (flip)
+    transforms.RandomHorizontalFlip(p=0.5),
+    
+    # 3. Случайное масштабирование: Изменяйте масштаб изображения в пределах [0.8, 1.2]
+    transforms.Resize((224, 224)),
+    
+    # 4. Сдвиги по осям X и Y: Применяем случайные сдвиги
+    transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+    
+    # 5. Изменение яркости: Случайно изменяйте яркость изображения в диапазоне [0.7, 1.3]
+    transforms.ColorJitter(brightness=(0.7, 1.3)),
+    
+    # 6. Изменение контраста: Меняйте контраст изображения в диапазоне [0.8, 1.2]
+    transforms.ColorJitter(contrast=(0.8, 1.2)),
+    
+    # 7. Изменение насыщенности цветов: Регулируйте насыщенность в диапазоне [0.5, 1.5]
+    transforms.ColorJitter(saturation=(0.5, 1.5)),
+    
+    # Преобразование в тензор PyTorch (должно быть перед Lambda)
+    transforms.ToTensor(),
+# 8. Добавление шума: Добавляйте небольшое количество случайного шума (например, гауссовский шум)
+    transforms.Lambda(lambda x: x + torch.randn_like(x) * 0.05),
+    
+    # 9. Перспективные искажения: Применяйте случайные перспективные преобразования
+    transforms.RandomPerspective(distortion_scale=0.2, p=0.5),
+    
+    # 10. Кроппинг (обрезка): Обрезайте случайную часть изображения, оставляя ключевые области
+    transforms.RandomCrop(size=(224, 224), padding=10),
+    
+    # 11. Размытие: Применяйте случайное размытие (например, Gaussian blur)
+    transforms.GaussianBlur(kernel_size=(5, 5), sigma=(0.1, 2.0)),
+    
+    # 12. Изменение качества изображения: Уменьшайте разрешение или добавляйте JPEG-артефакты
+    transforms.RandomAdjustSharpness(sharpness_factor=0.5, p=0.5),
+    
+    # 13. Затемнение или затемненные области: Добавляйте затемненные участки ("тени")
+    transforms.RandomErasing(p=0.3, scale=(0.02, 0.1), ratio=(0.3, 3.3), value=0),
+    
+    # Нормализация изображения (необходимо для большинства нейронных сетей)
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 # Путь к данным
