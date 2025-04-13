@@ -18,6 +18,7 @@ class SEBlock(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
+
 # Улучшенная модель
 class EnhancedYOLOLike(nn.Module):
     def __init__(self, num_classes=20):
