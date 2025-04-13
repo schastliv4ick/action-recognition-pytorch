@@ -16,7 +16,7 @@ from utils.logging import setup_event_handlers, setup_metrics_history
 from utils.plotting import plot_metrics, visualize_predictions
 
 # from config import PATH_TO_DATA
-PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
+PATH_TO_DATA = "V:\\ML\\yandex-ml-2025\\data"
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""

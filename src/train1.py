@@ -76,7 +76,6 @@ class EnhancedYOLOLike(nn.Module):
         x = self.classifier(x)
         return x
 
-
 # Аугментации
 train_transform = transforms.Compose([
     transforms.Resize((288, 512)),
@@ -176,7 +175,7 @@ def main():
         print(f"Using {os.cpu_count()} CPU threads")
     
     # Подготовка данных
-    data_dir = "V:\ML\yandex-ml-2025\data"
+    data_dir = "D:\\VS\\ml\\human_poses_data\\yandex-ml-2025\\data\\train_answers.csv"
     full_dataset = PeopleDataset(data_dir, transform=None)
     
     train_size = int(0.8 * len(full_dataset))
