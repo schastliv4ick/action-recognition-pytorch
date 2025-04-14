@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import transforms
+from tranforming import transforms
 
 
 class PeopleDataset(Dataset):

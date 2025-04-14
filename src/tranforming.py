@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import torch  # For checking tensor type
-import dataloader
-from dataloader import PeopleDataset
 import torchvision.transforms as transforms
 from torchvision.transforms import functional as F
 import random
@@ -33,7 +31,7 @@ transform = transforms.Compose([
     transforms.RandomRotation(degrees=15),
     
     # Случайное изменение размера и обрезка
-    transforms.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
+    transforms.RandomResizedCrop(size=(288, 512), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
     
     # Случайное изменение цветовых характеристик
     RandomAdjustColor(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
@@ -92,10 +90,10 @@ transform1 = transforms.Compose([
 ])
 
 # Путь к данным
-PATH_TO_DATA = "D:\\VS\\ml\\human_poses_data\\yandex-ml-2025\\data"
+# PATH_TO_DATA = "D:\\VS\\ml\\human_poses_data\\yandex-ml-2025\\data"
 
 
-
+"""
 # Создание датасета с аугментацией
 aug_dataset = PeopleDataset(PATH_TO_DATA, transform=transform)
 
@@ -109,3 +107,4 @@ for i in range(16):
     plt.imshow(img)
     plt.axis('off')
 plt.show()
+"""
