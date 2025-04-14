@@ -63,9 +63,21 @@ if __name__ == "__main__":
     LEARNING_RATE = 0.001
     MOMENTUM = 0.9
 
-    optimizer = AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
+    num_classes = 20
+
+    train_indices = train_set.indices
+    train_targets = [full_dataset[idx][1] for idx in train_indices]
+    class_counts = [train_targets.count(i) for i in range(num_classes)]
+    class_counts = [c if c != 0 else 1 for c in class_counts]
+    class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
+    class_weights = class_weights / class_weights.sum()  
+    class_weights = class_weights.to(device)
+    criterion = CrossEntropyLoss(weight=class_weights)
+
+    optimizer = AdamW(model.parameters(), lr=0.001, weight_decay=1e-2)
     scheduler = CosineAnnealingLR(optimizer, T_max=50)
-    criterion = CrossEntropyLoss()
+
+    criterion = CrossEntropyLoss(weight=class_weights.to(device))
 
     print("Initializing trainer and evaluators...")
     trainer = setup_trainer(model, optimizer, criterion, device)
