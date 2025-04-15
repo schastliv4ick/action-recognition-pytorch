@@ -9,6 +9,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
 
 from models.__all_models import *
+from models.PoseCNNv2 import PoseCNNv2
 import dataloader
 from dataloader import PeopleDataset
 
@@ -17,7 +18,7 @@ from utils.logging import setup_event_handlers, setup_metrics_history
 from utils.plotting import plot_metrics, visualize_predictions
 
 # from config import PATH_TO_DATA
-PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
+PATH_TO_DATA = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data"
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = PoseCNN(num_classes=20)
+    model = PoseCNNv2(num_classes=20)
     model.to(device)
     summary(model, (3, 288, 512))
     print("\n")

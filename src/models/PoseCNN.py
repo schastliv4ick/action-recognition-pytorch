@@ -30,6 +30,7 @@ class PoseCNN(nn.Module):
             nn.Linear(256, num_classes)
         )
 
+
     def forward(self, x):
         x = self.backbone(x)
         x = self.pool(x)
