@@ -30,13 +30,10 @@ transform = transforms.Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     
     # Случайное вращение изображения (до 30 градусов)
-    transforms.RandomRotation(degrees=15),
+    transforms.RandomRotation(degrees=45),
     
     # Случайное изменение размера и обрезка
-    transforms.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
-    
-    # Случайное изменение цветовых характеристик
-    RandomAdjustColor(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+    transforms.RandomResizedCrop(size=(256, 256), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
     
     # Преобразование в тензор PyTorch
     transforms.ToTensor(),
@@ -44,6 +41,7 @@ transform = transforms.Compose([
     # Нормализация изображения (стандартные значения для ImageNet)
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
+
 
 transform1 = transforms.Compose([
     # 1. Повороты: Поворачивайте изображение на случайный угол в диапазоне [-30°, +30°]
@@ -69,7 +67,8 @@ transform1 = transforms.Compose([
     
     # Преобразование в тензор PyTorch (должно быть перед Lambda)
     transforms.ToTensor(),
-# 8. Добавление шума: Добавляйте небольшое количество случайного шума (например, гауссовский шум)
+    
+    # 8. Добавление шума: Добавляйте небольшое количество случайного шума (например, гауссовский шум)
     transforms.Lambda(lambda x: x + torch.randn_like(x) * 0.05),
     
     # 9. Перспективные искажения: Применяйте случайные перспективные преобразования
@@ -79,16 +78,16 @@ transform1 = transforms.Compose([
     transforms.RandomCrop(size=(224, 224), padding=10),
     
     # 11. Размытие: Применяйте случайное размытие (например, Gaussian blur)
-    transforms.GaussianBlur(kernel_size=(5, 5), sigma=(0.1, 2.0)),
+    #transforms.GaussianBlur(kernel_size=(5, 5), sigma=(0.1, 2.0)),
     
     # 12. Изменение качества изображения: Уменьшайте разрешение или добавляйте JPEG-артефакты
-    transforms.RandomAdjustSharpness(sharpness_factor=0.5, p=0.5),
+    #transforms.RandomAdjustSharpness(sharpness_factor=0.5, p=0.5),
     
     # 13. Затемнение или затемненные области: Добавляйте затемненные участки ("тени")
-    transforms.RandomErasing(p=0.3, scale=(0.02, 0.1), ratio=(0.3, 3.3), value=0),
+    #transforms.RandomErasing(p=0.3, scale=(0.02, 0.1), ratio=(0.3, 3.3), value=0),
     
     # Нормализация изображения (необходимо для большинства нейронных сетей)
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 # Путь к данным
@@ -97,7 +96,7 @@ PATH_TO_DATA = "D:\\VS\\ml\\human_poses_data\\yandex-ml-2025\\data"
 
 
 # Создание датасета с аугментацией
-aug_dataset = PeopleDataset(PATH_TO_DATA, transform=transform)
+aug_dataset = PeopleDataset(PATH_TO_DATA, transform=transform1)
 
 # Визуализация аугментированных изображений
 plt.figure(figsize=(10, 10))
