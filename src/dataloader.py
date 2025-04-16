@@ -61,20 +61,27 @@ def get_val_transforms():
     ])
 
 
-def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4):
-    sample_weights = get_class_weights(train_set)
-    sampler = WeightedRandomSampler(
-        weights=sample_weights,
-        num_samples=len(sample_weights),
-        replacement=True
-    )
-
-    train_loader = DataLoader(
-        train_set,
-        batch_size=batch_size,
-        sampler=sampler,
-        num_workers=num_workers
-    )
+def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4, use_sampler=True):
+    if use_sampler:
+        sample_weights = get_class_weights(train_set)
+        sampler = WeightedRandomSampler(
+            weights=sample_weights,
+            num_samples=len(sample_weights),
+            replacement=True
+        )
+        train_loader = DataLoader(
+            train_set,
+            batch_size=batch_size,
+            sampler=sampler,
+            num_workers=num_workers
+        )
+    else:
+        train_loader = DataLoader(
+            train_set,
+            batch_size=batch_size,
+            shuffle=True, 
+            num_workers=num_workers
+        )
 
     valid_loader = DataLoader(
         valid_set,
