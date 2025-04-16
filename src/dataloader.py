@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
-from tranforming import transforms
+from src.utils.tranforming import basic_transformation, basic_augmentation, advanced_augmentation
 from collections import Counter
 
 
@@ -45,20 +45,14 @@ def get_class_weights(dataset):
     return torch.DoubleTensor(sample_weights)
 
 
-def get_train_transforms():
-    return transforms.Compose([
-        transforms.Resize((288, 512)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-
-
-def get_val_transforms():
-    return transforms.Compose([
-        transforms.Resize((288, 512)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+def get_transforms(augmentation_type=None):
+    print(f"Augmentation type: {augmentation_type}")
+    if augmentation_type == "basic":
+        return basic_augmentation
+    elif augmentation_type == "advanced":
+        return advanced_augmentation
+    else:
+        return basic_transformation
 
 
 def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4):
@@ -100,16 +94,13 @@ def split_dataset(dataset, valid_ratio=0.25):
 
 
 if __name__ == "__main__":
-    train_transforms = get_train_transforms()
-    val_transforms = get_val_transforms()
 
     data_dir = "PATH TO YOUR DATA"
-    full_dataset = PeopleDataset(data_dir)
+    transforms = get_transforms()
+
+    full_dataset = PeopleDataset(data_dir, transform=transforms)
 
     train_set, valid_set = split_dataset(full_dataset, valid_ratio=0.2)
-
-    train_set.dataset.transform = train_transforms
-    valid_set.dataset.transform = val_transforms
 
     batch_size = 32
     train_loader, valid_loader = setup_data_loaders(

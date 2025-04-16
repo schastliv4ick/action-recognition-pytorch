@@ -9,16 +9,16 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
 
 from models.__all_models import *
-from models.PoseCNNv2 import PoseCNNv2
+# from models.PoseCNNv2 import PoseCNNv2
 import dataloader
 from dataloader import PeopleDataset
 
 from utils.engine import setup_trainer, setup_evaluators
 from utils.logging import setup_event_handlers, setup_metrics_history
-from utils.plotting import plot_metrics, visualize_predictions
+from utils import plotting
 
-# from config import PATH_TO_DATA
-PATH_TO_DATA = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data"
+from config import PATH_TO_DATA
+
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""
@@ -36,21 +36,18 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = PoseCNNv2(num_classes=20)
+    model = PoseCNN(num_classes=20)
     model.to(device)
     summary(model, (3, 288, 512))
     print("\n")
 
     """Preparing the data"""
-    train_transforms = dataloader.get_train_transforms()
-    val_transforms = dataloader.get_val_transforms()
+    transforms = dataloader.get_transforms(augmentation_type="advanced")
 
-    print("Loading the dataset...")
-    full_dataset = PeopleDataset(PATH_TO_DATA)
+    print("Loading and transforming the dataset...")
+    full_dataset = PeopleDataset(PATH_TO_DATA, transform=transforms)
 
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
-    train_set.dataset.transform = train_transforms
-    valid_set.dataset.transform = val_transforms
 
     print("Setting up data loaders...")
     BATCH_SIZE = 32
@@ -71,7 +68,7 @@ if __name__ == "__main__":
     class_counts = [train_targets.count(i) for i in range(num_classes)]
     class_counts = [c if c != 0 else 1 for c in class_counts]
     class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
-    class_weights = class_weights / class_weights.sum()  
+    class_weights = class_weights / class_weights.sum()
     class_weights = class_weights.to(device)
     criterion = CrossEntropyLoss(weight=class_weights)
 
@@ -86,7 +83,7 @@ if __name__ == "__main__":
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
 
-    NUM_EPOCHS = 50
+    NUM_EPOCHS = 10
     print(f"\nStarting training for {NUM_EPOCHS} epochs...")
 
     for epoch in range(NUM_EPOCHS):
@@ -117,7 +114,8 @@ if __name__ == "__main__":
             train_iterator.set_postfix(loss=loss.item())
 
         train_loss /= len(train_loader)
-        train_accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(all_train_targets)
+        train_accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(
+            all_train_targets)
         train_precision, train_recall, train_f1 = calculate_metrics(all_train_preds, all_train_targets)
 
         train_metrics_history['loss'].append(train_loss)
@@ -166,7 +164,7 @@ if __name__ == "__main__":
     """Results visualization"""
     print("\nTraining completed!")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-    plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
 
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
@@ -175,6 +173,6 @@ if __name__ == "__main__":
                    'home activities', 'lawn and garden', 'religious activities', 'winter activities',
                    'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
                    'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
-    visualize_predictions(model, valid_loader, device, class_names)
+    plotting.visualize_predictions(model, valid_loader, device, class_names)
 
     # evaluate_model(model, test_loader, criterion, device)
