@@ -17,7 +17,8 @@ from utils.engine import setup_trainer, setup_evaluators
 from utils.logging import setup_event_handlers, setup_metrics_history
 from utils import plotting
 
-from config import PATH_TO_DATA
+# from config import PATH_TO_DATA
+PATH_TO_DATA = "PATH TO YOUR DATA"
 
 
 def calculate_metrics(preds, targets):
@@ -44,13 +45,15 @@ if __name__ == "__main__":
     """Preparing the data"""
     transforms = dataloader.get_transforms(augmentation_type="advanced")
 
-    print("Loading and transforming the dataset...")
-    full_dataset = PeopleDataset(PATH_TO_DATA, transform=transforms)
+    print("Loading the dataset...")
+    full_dataset = PeopleDataset(PATH_TO_DATA)
+
+    train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
+    train_set.dataset.transform = transforms
+    valid_set.dataset.transform = transforms
 
     # Showing first 12 images after transforming them
     plotting.show_first_images(full_dataset)
-
-    train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
 
     print("Setting up data loaders...")
     BATCH_SIZE = 32
