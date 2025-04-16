@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
-from src.utils.tranforming import basic_transformation, basic_augmentation, advanced_augmentation
+from utils import transforming
 from collections import Counter
 
 
@@ -48,11 +48,11 @@ def get_class_weights(dataset):
 def get_transforms(augmentation_type=None):
     print(f"Augmentation type: {augmentation_type}")
     if augmentation_type == "basic":
-        return basic_augmentation
+        return transforming.basic_augmentation
     elif augmentation_type == "advanced":
-        return advanced_augmentation
+        return transforming.advanced_augmentation
     else:
-        return basic_transformation
+        return transforming.basic_transformation
 
 
 def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4, use_sampler=True):
