@@ -2,8 +2,9 @@ import os
 import torch
 import pandas as pd
 from PIL import Image
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
 from tranforming import transforms
+from collections import Counter
 
 
 class PeopleDataset(Dataset):
@@ -32,6 +33,18 @@ class PeopleDataset(Dataset):
         return image, label
 
 
+def get_class_weights(dataset):
+    targets = [dataset[i][1].item() for i in range(len(dataset))]
+    class_counts = Counter(targets)
+    total_samples = len(targets)
+    num_classes = len(class_counts)
+
+    class_weights = {cls: total_samples / count for cls, count in class_counts.items()}
+    sample_weights = [class_weights[label] for label in targets]
+
+    return torch.DoubleTensor(sample_weights)
+
+
 def get_train_transforms():
     return transforms.Compose([
         transforms.Resize((288, 512)),
@@ -49,10 +62,17 @@ def get_val_transforms():
 
 
 def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4):
+    sample_weights = get_class_weights(train_set)
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(sample_weights),
+        replacement=True
+    )
+
     train_loader = DataLoader(
         train_set,
         batch_size=batch_size,
-        shuffle=True,
+        sampler=sampler,
         num_workers=num_workers
     )
 
