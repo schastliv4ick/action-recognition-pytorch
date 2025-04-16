@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-class PoseCNN(nn.Module):
+class PoseCNNv2(nn.Module):
     def __init__(self, num_classes=20):
-        super(PoseCNN, self).__init__()
+        super(PoseCNNv2, self).__init__()
         
         def conv_block(in_channels, out_channels, use_dropout=False):
             layers = [

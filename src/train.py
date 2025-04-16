@@ -9,7 +9,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
 
 from models.__all_models import *
-# from models.PoseCNNv2 import PoseCNNv2
+from models.PoseCNNv2 import PoseCNNv2
 import dataloader
 from dataloader import PeopleDataset
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = PoseCNN(num_classes=20)
+    model = PoseCNNv2(num_classes=20)
     model.to(device)
     summary(model, (3, 288, 512))
     print("\n")
