@@ -141,3 +141,18 @@ def visualize_predictions(model, valid_loader, device, class_names, num_images=1
 
     plt.tight_layout()
     plt.show()
+
+
+def show_first_images(dataset):
+    plt.figure(figsize=(8, 6))
+    for i in range(12):
+        image, label = dataset[i]
+        # Если использовались torchvision трансформации, то нужно преобразовать обратно в PIL или numpy
+        if isinstance(image, Tensor):
+            image = image.permute(1, 2, 0).numpy()  # CHW -> HWC
+        plt.subplot(3, 4, i + 1)
+        plt.imshow(image)
+        plt.title(f"Label: {label.item() if isinstance(label, Tensor) else label}")
+        plt.axis("off")
+    plt.tight_layout()
+    plt.show()

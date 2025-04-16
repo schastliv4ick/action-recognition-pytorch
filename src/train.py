@@ -47,6 +47,9 @@ if __name__ == "__main__":
     print("Loading and transforming the dataset...")
     full_dataset = PeopleDataset(PATH_TO_DATA, transform=transforms)
 
+    # Showing first 12 images after transforming them
+    plotting.show_first_images(full_dataset)
+
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
 
     print("Setting up data loaders...")
