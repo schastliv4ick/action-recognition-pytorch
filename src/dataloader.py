@@ -55,7 +55,7 @@ def get_transforms(augmentation_type=None):
         return transforming.basic_transformation
 
 
-def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4, use_sampler=True):
+def setup_data_loaders(batch_size, train_set, valid_set=None, num_workers=4, use_sampler=False):
     if use_sampler:
         sample_weights = get_class_weights(train_set)
         sampler = WeightedRandomSampler(

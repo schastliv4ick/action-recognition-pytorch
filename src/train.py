@@ -17,8 +17,8 @@ from utils.engine import setup_trainer, setup_evaluators
 from utils.logging import setup_event_handlers, setup_metrics_history
 from utils import plotting
 
-from config import PATH_TO_DATA
-
+# from config import PATH_TO_DATA
+PATH_TO_DATA = 'C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data'
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     class_weights = class_weights.to(device)
     criterion = CrossEntropyLoss(weight=class_weights)
 
-    optimizer = AdamW(model.parameters(), lr=0.001, weight_decay=1e-2)
+    optimizer = AdamW(model.parameters(), lr=0.01, weight_decay=1e-3)
     scheduler = CosineAnnealingLR(optimizer, T_max=50)
 
     criterion = CrossEntropyLoss(weight=class_weights.to(device))
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
 
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 50
     print(f"\nStarting training for {NUM_EPOCHS} epochs...")
 
     for epoch in range(NUM_EPOCHS):
@@ -115,6 +115,8 @@ if __name__ == "__main__":
             all_train_targets.extend(target.cpu().numpy())
 
             train_iterator.set_postfix(loss=loss.item())
+
+        scheduler.step()
 
         train_loss /= len(train_loader)
         train_accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(
