@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from typing import List
-from torch import Tensor, no_grad
+from torch import Tensor, no_grad, argmax
 from torch import max as torch_max
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 from random import sample as random_sample
 import math
 from collections import defaultdict
+import numpy as np
 
 
 def plot_metric(metric_name, subplot_num, epochs, train_metric_value, valid_metric_value, nrows, ncols, is_ylim=False):
@@ -155,4 +157,79 @@ def show_first_images(dataset):
         plt.title(f"Label: {label.item() if isinstance(label, Tensor) else label}")
         plt.axis("off")
     plt.tight_layout()
+    plt.show()
+
+
+def plot_metrics_per_class(model, data_loader, device, class_names):
+    model.eval()
+    all_preds = []
+    all_targets = []
+
+    print("Collecting predictions and targets...")
+
+    with no_grad():
+        for batch_idx, (data, target) in enumerate(data_loader):
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            preds = argmax(output, dim=1)
+
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(target.cpu().numpy())
+
+    print(f"Total predictions: {len(all_preds)}")
+    print(f"Total targets: {len(all_targets)}")
+    print(f"Unique predicted classes: {np.unique(all_preds)}")
+    print(f"Unique true classes: {np.unique(all_targets)}")
+
+    if len(all_preds) == 0 or len(all_targets) == 0:
+        print("Error: Empty predictions or targets. Check if data_loader is not empty.")
+        return
+
+    num_classes = len(class_names)
+    class_accuracies = []
+    class_precisions = []
+    class_f1s = []
+
+    for class_idx in range(num_classes):
+        true_labels = np.array(all_targets)
+        pred_labels = np.array(all_preds)
+
+        class_mask = true_labels == class_idx
+
+        print(f"Class {class_idx} ({class_names[class_idx]}): {np.sum(class_mask)} examples")
+
+        if np.sum(class_mask) == 0:
+            acc = prec = f1 = 0
+        else:
+            # Get predictions only for those examples where the true class is the current class_idx
+            relevant_preds = pred_labels[class_mask]
+            relevant_trues = true_labels[class_mask]
+            acc = accuracy_score(relevant_trues, relevant_preds)
+            prec = precision_score(true_labels, pred_labels, labels=[class_idx], average='macro', zero_division=0)
+            f1 = f1_score(true_labels, pred_labels, labels=[class_idx], average='macro', zero_division=0)
+
+        class_accuracies.append(acc)
+        class_precisions.append(prec)
+        class_f1s.append(f1)
+
+    x = np.arange(num_classes)
+    width = 0.25
+
+    for i, name in enumerate(class_names):
+        print(
+            f"Class {i} '{name}': Accuracy={class_accuracies[i]:.2f}, Precision={class_precisions[i]:.2f}, F1={class_f1s[i]:.2f}")
+
+    plt.figure(figsize=(16, 8))
+    plt.bar(x - width, class_accuracies, width, label='Accuracy')
+    plt.bar(x, class_precisions, width, label='Precision')
+    plt.bar(x + width, class_f1s, width, label='F1 Score')
+
+    plt.xlabel('Class')
+    plt.ylabel('Score')
+    plt.title('Per-Class Accuracy, Precision, and F1 Score')
+    plt.xticks(x, class_names, rotation=45, ha='right')
+    plt.ylim(0, 1.05)
+    plt.legend()
+    plt.tight_layout()
+    plt.grid(True, linestyle='--', alpha=0.5)
     plt.show()

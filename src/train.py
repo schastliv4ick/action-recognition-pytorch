@@ -18,7 +18,7 @@ from utils.logging import setup_event_handlers, setup_metrics_history
 from utils import plotting
 
 # from config import PATH_TO_DATA
-PATH_TO_DATA = "PATH TO YOUR DATA"
+PATH_TO_DATA = "D:\\yandex-ml-2025\\data\\human_poses_data"
 
 
 def calculate_metrics(preds, targets):
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     valid_set.dataset.transform = transforms
 
     # Showing first 12 images after transforming them
-    plotting.show_first_images(full_dataset)
+    # plotting.show_first_images(full_dataset)
 
     print("Setting up data loaders...")
     BATCH_SIZE = 32
@@ -179,6 +179,8 @@ if __name__ == "__main__":
                    'home activities', 'lawn and garden', 'religious activities', 'winter activities',
                    'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
                    'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
-    plotting.visualize_predictions(model, valid_loader, device, class_names)
+    # plotting.visualize_predictions(model, valid_loader, device, class_names)
+
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names)
 
     # evaluate_model(model, test_loader, criterion, device)
