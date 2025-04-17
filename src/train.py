@@ -49,14 +49,15 @@ if __name__ == "__main__":
     print("\n")
 
     """Preparing the data"""
-    transforms = dataloader.get_transforms(augmentation_type=config.AUGMENTATION_TYPE)
+    train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
+    valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
 
     print("Loading the dataset...")
     full_dataset = PeopleDataset(config.PATH_TO_DATA)
 
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
-    train_set.dataset.transform = transforms
-    valid_set.dataset.transform = transforms
+    train_set.dataset.transform = train_transforms
+    valid_set.dataset.transform = valid_transforms
 
     # Showing first 12 images after transforming them
     # plotting.show_first_images(full_dataset)
