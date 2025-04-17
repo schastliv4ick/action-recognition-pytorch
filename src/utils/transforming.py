@@ -30,7 +30,7 @@ def add_gaussian_noise(tensor, mean=0.0, std=0.05):
 
 # Обычная трансформация без аугментации
 basic_transformation = transforms.Compose([
-    transforms.Resize((288, 512)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])

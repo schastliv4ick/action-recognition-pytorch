@@ -17,8 +17,15 @@ from utils.engine import setup_trainer, setup_evaluators
 from utils.logging import setup_event_handlers, setup_metrics_history
 from utils import plotting
 
-# from config import PATH_TO_DATA
-PATH_TO_DATA = 'C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data'
+import sys
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+import config
+
 
 def calculate_metrics(preds, targets):
     """Calculate precision, recall, f1 score"""
@@ -42,28 +49,27 @@ if __name__ == "__main__":
     print("\n")
 
     """Preparing the data"""
-    transforms = dataloader.get_transforms(augmentation_type="advanced")
+    train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
+    valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
 
-    print("Loading and transforming the dataset...")
-    full_dataset = PeopleDataset(PATH_TO_DATA, transform=transforms)
-
-    # Showing first 12 images after transforming them
-    plotting.show_first_images(full_dataset)
+    print("Loading the dataset...")
+    full_dataset = PeopleDataset(config.PATH_TO_DATA)
 
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
+    train_set.dataset.transform = train_transforms
+    valid_set.dataset.transform = valid_transforms
 
-    print("Setting up data loaders...")
-    BATCH_SIZE = 32
+    # Showing first 12 images after transforming them
+    # plotting.show_first_images(full_dataset)
+
+    print(f"Setting up data loaders with batch_size={config.BATCH_SIZE}...")
     train_loader, valid_loader = dataloader.setup_data_loaders(
-        batch_size=BATCH_SIZE,
+        batch_size=config.BATCH_SIZE,
         train_set=train_set,
         valid_set=valid_set
     )
 
     """Training setup"""
-    LEARNING_RATE = 0.001
-    MOMENTUM = 0.9
-
     num_classes = 20
 
     train_indices = train_set.indices
@@ -73,9 +79,8 @@ if __name__ == "__main__":
     class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
     class_weights = class_weights / class_weights.sum()
     class_weights = class_weights.to(device)
-    criterion = CrossEntropyLoss(weight=class_weights)
 
-    optimizer = AdamW(model.parameters(), lr=0.01, weight_decay=1e-3)
+    optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
     scheduler = CosineAnnealingLR(optimizer, T_max=50)
 
     criterion = CrossEntropyLoss(weight=class_weights.to(device))
@@ -86,11 +91,10 @@ if __name__ == "__main__":
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
 
-    NUM_EPOCHS = 50
-    print(f"\nStarting training for {NUM_EPOCHS} epochs...")
+    print(f"\nStarting training for {config.NUM_EPOCHS} epochs...")
 
-    for epoch in range(NUM_EPOCHS):
-        print(f"\nEpoch {epoch + 1}/{NUM_EPOCHS}")
+    for epoch in range(config.NUM_EPOCHS):
+        print(f"\nEpoch {epoch + 1}/{config.NUM_EPOCHS}")
 
         train_iterator = tqdm(train_loader, desc="Training", unit="batch")
         model.train()
@@ -178,6 +182,8 @@ if __name__ == "__main__":
                    'home activities', 'lawn and garden', 'religious activities', 'winter activities',
                    'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
                    'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
-    plotting.visualize_predictions(model, valid_loader, device, class_names)
+    # plotting.visualize_predictions(model, valid_loader, device, class_names)
+
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names)
 
     # evaluate_model(model, test_loader, criterion, device)
