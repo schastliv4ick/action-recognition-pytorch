@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-class PoseCNNv2(nn.Module):
+class PoseCNNsc(nn.Module):
     def __init__(self, num_classes=20):
-        super(PoseCNNv2, self).__init__()
+        super(PoseCNNsc, self).__init__()
         
         def conv_block(in_channels, out_channels, use_dropout=False):
             layers = [
@@ -35,7 +35,16 @@ class PoseCNNv2(nn.Module):
 
 
     def forward(self, x):
-        x = self.backbone(x)
-        x = self.pool(x)
+        x1 = self.backbone[0](x)  
+        x2 = self.backbone[1](x1) 
+        x3 = self.backbone[2](x2) 
+        x4 = self.backbone[3](x3) 
+        x5 = self.backbone[4](x4) 
+
+        skip = F.interpolate(x3, size=x5.shape[2:])
+        x5 = x5 + skip  
+
+        x = self.pool(x5)
         x = self.classifier(x)
         return x
+
