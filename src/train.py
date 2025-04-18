@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
             train_iterator.set_postfix(loss=loss.item())
 
-        scheduler.step()
+        # scheduler.step()
 
         train_loss /= len(train_loader)
         train_accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(
