@@ -1,11 +1,11 @@
-PATH_TO_DATA = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data"
+PATH_TO_DATA = "PATH_TO_YOUR_DATA"
 
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-NUM_EPOCHS = 1
+NUM_EPOCHS = 50
 
 WEIGHT_DECAY = 1e-3
 
-TRAIN_AUGMENTATION_TYPE = "advanced"
+TRAIN_AUGMENTATION_TYPE = "basic"
 VALID_AUGMENTATION_TYPE = None
