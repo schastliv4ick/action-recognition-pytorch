@@ -6,3 +6,4 @@ from .PoseCNNv2 import PoseCNNv2
 from .PoseCNNsc import PoseCNNsc
 from .PoseCNNsc_13_35 import PoseCNNsc_13_35
 from .PoseCNNsc_13_24_35 import PoseCNNsc_13_24_35
+from .PoseCNNv2_Lite import PoseCNNv2_Lite
