@@ -43,7 +43,7 @@ if __name__ == "__main__":
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
-    model = PoseCNNv2(num_classes=20)
+    model = PoseCNNsc_13_24_35(num_classes=20)
     model.to(device)
     summary(model, (3, 288, 512))
     print("\n")
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
             train_iterator.set_postfix(loss=loss.item())
 
-        # scheduler.step()
+        scheduler.step()
 
         train_loss /= len(train_loader)
         train_accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(

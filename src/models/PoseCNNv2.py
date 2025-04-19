@@ -13,7 +13,7 @@ class PoseCNNv2(nn.Module):
                 nn.MaxPool2d(2)
             ]
             if use_dropout:
-                layers.append(nn.Dropout2d(0.5)) 
+                layers.append(nn.Dropout2d(0.3))
             return nn.Sequential(*layers)
         
         self.backbone = nn.Sequential(
@@ -21,7 +21,7 @@ class PoseCNNv2(nn.Module):
             conv_block(32, 64),
             conv_block(64, 128, use_dropout=False),
             conv_block(128, 256, use_dropout=True),
-            conv_block(256, 512, use_dropout=False),
+            conv_block(256, 512, use_dropout=True),
         )
         
         self.pool = nn.AdaptiveAvgPool2d(1)  # → (B, 512, 1, 1)
