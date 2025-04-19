@@ -35,6 +35,38 @@ def setup_metrics_history():
     return train_metrics_history, valid_metrics_history
 
 
+def add_metrics_to_history(metrics_history, metrics_data: dict):
+    metrics_history['loss'].append(metrics_data["loss"])
+    metrics_history['accuracy'].append(metrics_data["accuracy"])
+    metrics_history['precision'].append(metrics_data["precision"])
+    metrics_history['recall'].append(metrics_data["recall"])
+    metrics_history['f1'].append(metrics_data["f1"])
+    return metrics_history
+
+
+def print_metrics(data_type: str, metrics_dict: dict):
+    """
+    :param data_type: "Train", "Valid" or "Test"
+    :param metrics_dict: dict of metrics values
+    """
+
+    loss = metrics_dict["loss"]
+    accuracy = metrics_dict["accuracy"]
+    precision = metrics_dict["precision"]
+    recall = metrics_dict["recall"]
+    f1 = metrics_dict["f1"]
+
+    print(f"{data_type} - Loss: {loss :.4f}, Acc: {accuracy :.2f}%, "
+          f"Precision: {precision :.4f}, Recall: {recall :.4f}, F1: {f1 :.4f}")
+
+
+def print_epoch_summary(epoch: int, train_metrics_dict: dict, valid_metrics_dict: dict):
+    print(f"\nEpoch {epoch + 1} Summary:")
+    print_metrics("Train", train_metrics_dict)
+    if valid_metrics_dict:
+        print_metrics("Valid", valid_metrics_dict)
+
+
 def setup_event_handlers(trainer, optimizer,
                          train_evaluator, valid_evaluator,
                          train_metrics_history, valid_metrics_history,
