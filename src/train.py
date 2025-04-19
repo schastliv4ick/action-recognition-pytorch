@@ -9,7 +9,7 @@ from models.__all_models import *
 import dataloader
 from dataloader import PeopleDataset
 
-from utils.engine import setup_trainer, setup_evaluators, train_epoch, calculate_epoch_metrics
+from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
 from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
 from utils import plotting
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     for epoch in range(config.NUM_EPOCHS):
         print(f"\nEpoch {epoch + 1}/{config.NUM_EPOCHS}")
 
-        train_metrics_dict = train_epoch(model, train_loader, criterion, optimizer, device, epoch, config.NUM_EPOCHS)
+        train_metrics_dict = train_epoch_and_get_metrics_dict(model, train_loader, criterion, optimizer, device, epoch, config.NUM_EPOCHS)
         scheduler.step()
         add_metrics_to_history(train_metrics_history, train_metrics_dict)
 

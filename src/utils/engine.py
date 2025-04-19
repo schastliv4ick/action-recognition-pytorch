@@ -68,7 +68,7 @@ def train_step(model, data, target, criterion, optimizer, device):
     return loss.item(), preds.cpu().numpy(), target.cpu().numpy()
 
 
-def train_epoch(model, train_loader, criterion, optimizer, device, epoch, num_epochs):
+def train_epoch_and_get_metrics_dict(model, train_loader, criterion, optimizer, device, epoch, num_epochs):
     model.train()
     train_loss = 0
     all_train_preds = []
@@ -86,7 +86,9 @@ def train_epoch(model, train_loader, criterion, optimizer, device, epoch, num_ep
     accuracy = 100. * np.sum(np.array(all_train_preds) == np.array(all_train_targets)) / len(all_train_targets)
     precision, recall, f1 = calculate_metrics(all_train_preds, all_train_targets)
 
-    return avg_loss, accuracy, precision, recall, f1
+    metrics_dict = create_metrics_dict(avg_loss, accuracy, precision, recall, f1)
+
+    return metrics_dict
 
 
 def calculate_epoch_metrics(model, valid_loader, criterion, device):
@@ -113,5 +115,16 @@ def calculate_epoch_metrics(model, valid_loader, criterion, device):
     accuracy = 100. * np.sum(np.array(all_val_preds) == np.array(all_val_targets)) / len(all_val_targets)
     precision, recall, f1 = calculate_metrics(all_val_preds, all_val_targets)
 
-    metrics_data = avg_loss, accuracy, precision, recall, f1
-    return metrics_data
+    metrics_dict = create_metrics_dict(avg_loss, accuracy, precision, recall, f1)
+    return metrics_dict
+
+
+def create_metrics_dict(avg_loss, accuracy, precision, recall, f1):
+    metrics_dict = {
+        "loss": avg_loss,
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1
+    }
+    return metrics_dict
