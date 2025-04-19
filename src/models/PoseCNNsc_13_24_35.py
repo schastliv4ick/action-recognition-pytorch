@@ -13,7 +13,7 @@ class PoseCNNsc_13_24_35(nn.Module):
                 nn.MaxPool2d(2)
             ]
             if use_dropout:
-                layers.append(nn.Dropout2d(0.3))
+                layers.append(nn.Dropout2d(0.4))
             return nn.Sequential(*layers)
 
         self.conv1 = conv_block(3, 32)  # Output: (32, H/2, W/2)

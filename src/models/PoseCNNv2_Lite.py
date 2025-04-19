@@ -21,7 +21,7 @@ class PoseCNNv2_Lite(nn.Module):
             conv_block(3, 24),  # было 32
             conv_block(24, 48),  # было 64
             conv_block(48, 96),  # было 128
-            conv_block(96, 192),  # было 256
+            conv_block(96, 192, use_dropout=True),  # было 256
             conv_block(192, 384),  # было 512
         )
 
