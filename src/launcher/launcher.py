@@ -1,16 +1,17 @@
 import sys
 import os
+from datetime import datetime
 
 # Установка project root в путь
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from launched_trainer import train_model  # импортируем функцию, которую выделили
-import models.__all_models as all_models
+from src.launcher.launched_trainer import train_model  # импортируем функцию, которую выделили
+import src.launcher.models.__all_models as all_models
 
 # Загружаем нужные конфиги
-from configs import config1, config2, config3
+from src.launcher.configs import config1, config2, config3
 
 # Параметры запуска: список моделей и соответствующих конфигов
 launch_list = [
@@ -20,8 +21,10 @@ launch_list = [
 ]
 
 if __name__ == "__main__":
-    for entry in launch_list:
+    today = datetime.today().strftime("%d.%m")
+
+    for i, entry in enumerate(launch_list):
         print("\n===============================================================================")
-        print(f"Запуск модели: {entry['model'].__name__} с конфигом {entry['config'].__name__}")
+        print(f"       Запуск модели: {entry['model'].__name__} с конфигом {entry['config'].__name__}")
         print("===============================================================================\n")
         train_model(config=entry['config'], model_class=entry['model'])

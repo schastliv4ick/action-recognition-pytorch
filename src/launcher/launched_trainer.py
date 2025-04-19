@@ -21,6 +21,10 @@ from src.utils import plotting
 
 
 def train_model(config, model_class):
+    RESULTS_DIR = os.path.join("results", config.__name__)
+    print("RESULTS_DIR", RESULTS_DIR)
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
@@ -92,7 +96,7 @@ def train_model(config, model_class):
     """Results visualization"""
     print("\nTraining completed!")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot, save_path=RESULTS_DIR)
 
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
@@ -103,6 +107,6 @@ def train_model(config, model_class):
                    'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
     # plotting.visualize_predictions(model, valid_loader, device, class_names)
 
-    plotting.plot_metrics_per_class(model, valid_loader, device, class_names)
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names, save_path=RESULTS_DIR)
 
     # evaluate_model(model, test_loader, criterion, device)
