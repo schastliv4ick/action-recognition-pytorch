@@ -5,3 +5,4 @@ venv/
 data/
 /data/human_poses_data/
 config.py
+/src/launcher/results/
