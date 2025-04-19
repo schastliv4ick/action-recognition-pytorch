@@ -1,9 +1,9 @@
-PATH_TO_DATA = "D:\\yandex-ml-2025\\data\\human_poses_data_reduced"
+PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
 
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-NUM_EPOCHS = 2
+NUM_EPOCHS = 50
 
 WEIGHT_DECAY = 1e-3
 
