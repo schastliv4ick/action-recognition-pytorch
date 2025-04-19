@@ -1,7 +1,5 @@
-import os
 import sys
-import argparse
-import importlib.util
+import os
 
 import torch
 from torch.optim import SGD, AdamW
@@ -9,132 +7,102 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn import CrossEntropyLoss
 from torchsummary import summary
 
-# Добавляем корень проекта в sys.path (чтобы работали импорты вроде `import dataloader`)
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# Импорты из проекта (всё как было)
-from src.models.__all_models import *
+from models.__all_models import *
 import src.dataloader as dataloader
 from src.dataloader import PeopleDataset
 
-from src.utils.engine import (
-    setup_trainer,
-    setup_evaluators,
-    train_epoch_and_get_metrics_dict,
-    calculate_epoch_metrics
-)
-from src.utils.logging import (
-    setup_metrics_history,
-    add_metrics_to_history,
-    print_epoch_summary
-)
+from src.utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
+from src.utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
 from src.utils import plotting
 
-# Аргументы: модель и путь к конфигу
-parser = argparse.ArgumentParser()
-parser.add_argument('--model', type=str, required=True, help="Название модели, например: PoseCNNsc")
-parser.add_argument('--config', type=str, required=True, help="Путь к конфигу, например: configs/config1.py")
-args = parser.parse_args()
 
-# Динамически загружаем указанный конфиг
-spec = importlib.util.spec_from_file_location("config", args.config)
-config = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(config)
+def train_model(config, model_class):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}\n")
 
-# Выбор устройства
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}\n")
+    model = model_class(num_classes=20)
+    model.to(device)
+    summary(model, (3, 288, 512))
+    print("\n")
 
-# Инициализация модели по имени
-if args.model == "PoseCNNsc":
-    model = PoseCNNsc()
-elif args.model == "PoseCNNv2_Lite":
-    model = PoseCNNv2_Lite()
-elif args.model == "PoseCNNsc_13_35":
-    model = PoseCNNsc_13_35()
-else:
-    raise ValueError(f"Модель '{args.model}' не поддерживается.")
+    """Preparing the data"""
+    train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
+    valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
 
-model.to(device)
-summary(model, (3, 288, 512))
-print("\n")
+    print("Loading the dataset...")
+    full_dataset = PeopleDataset(config.PATH_TO_DATA)
 
-"""Preparing the data"""
-train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
-valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
+    train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
+    train_set.dataset.transform = train_transforms
+    valid_set.dataset.transform = valid_transforms
 
-print("Loading the dataset...")
-full_dataset = PeopleDataset(config.PATH_TO_DATA)
+    # Showing first 12 images after transforming them
+    # plotting.show_first_images(full_dataset)
 
-train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
-train_set.dataset.transform = train_transforms
-valid_set.dataset.transform = valid_transforms
+    print(f"Setting up data loaders with batch_size={config.BATCH_SIZE}...")
+    train_loader, valid_loader = dataloader.setup_data_loaders(
+        batch_size=config.BATCH_SIZE,
+        train_set=train_set,
+        valid_set=valid_set
+    )
 
-# Showing first 12 images after transforming them
-# plotting.show_first_images(full_dataset)
+    """Training setup"""
+    num_classes = 20
 
-print(f"Setting up data loaders with batch_size={config.BATCH_SIZE}...")
-train_loader, valid_loader = dataloader.setup_data_loaders(
-    batch_size=config.BATCH_SIZE,
-    train_set=train_set,
-    valid_set=valid_set
-)
+    train_indices = train_set.indices
+    train_targets = [full_dataset[idx][1] for idx in train_indices]
+    class_counts = [train_targets.count(i) for i in range(num_classes)]
+    class_counts = [c if c != 0 else 1 for c in class_counts]
+    class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
+    class_weights = class_weights / class_weights.sum()
+    class_weights = class_weights.to(device)
 
-"""Training setup"""
-num_classes = 20
+    optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
+    scheduler = CosineAnnealingLR(optimizer, T_max=50)
 
-train_indices = train_set.indices
-train_targets = [full_dataset[idx][1] for idx in train_indices]
-class_counts = [train_targets.count(i) for i in range(num_classes)]
-class_counts = [c if c != 0 else 1 for c in class_counts]
-class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
-class_weights = class_weights / class_weights.sum()
-class_weights = class_weights.to(device)
+    criterion = CrossEntropyLoss(weight=class_weights.to(device))
 
-optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
-scheduler = CosineAnnealingLR(optimizer, T_max=50)
+    print("Initializing trainer and evaluators...")
+    trainer = setup_trainer(model, optimizer, criterion, device)
+    train_evaluator, valid_evaluator = setup_evaluators(model, criterion, device)
 
-criterion = CrossEntropyLoss(weight=class_weights.to(device))
+    train_metrics_history, valid_metrics_history = setup_metrics_history()
 
-print("Initializing trainer and evaluators...")
-trainer = setup_trainer(model, optimizer, criterion, device)
-train_evaluator, valid_evaluator = setup_evaluators(model, criterion, device)
+    print(f"\nStarting training for {config.NUM_EPOCHS} epochs...")
 
-train_metrics_history, valid_metrics_history = setup_metrics_history()
+    for epoch in range(config.NUM_EPOCHS):
+        print(f"\nEpoch {epoch + 1}/{config.NUM_EPOCHS}")
 
-print(f"\nStarting training for {config.NUM_EPOCHS} epochs...")
+        train_metrics_dict = train_epoch_and_get_metrics_dict(model, train_loader, criterion, optimizer, device, epoch,
+                                                              config.NUM_EPOCHS)
+        scheduler.step()
+        add_metrics_to_history(train_metrics_history, train_metrics_dict)
 
-for epoch in range(config.NUM_EPOCHS):
-    print(f"\nEpoch {epoch + 1}/{config.NUM_EPOCHS}")
+        valid_metrics_dict = {}
+        if valid_loader:
+            valid_metrics_dict = calculate_epoch_metrics(model, valid_loader, criterion, device)
+            add_metrics_to_history(valid_metrics_history, valid_metrics_dict)
 
-    train_metrics_dict = train_epoch_and_get_metrics_dict(model, train_loader, criterion, optimizer, device, epoch, config.NUM_EPOCHS)
-    scheduler.step()
-    add_metrics_to_history(train_metrics_history, train_metrics_dict)
+        print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
 
-    valid_metrics_dict = {}
-    if valid_loader:
-        valid_metrics_dict = calculate_epoch_metrics(model, valid_loader, criterion, device)
-        add_metrics_to_history(valid_metrics_history, valid_metrics_dict)
+    """Results visualization"""
+    print("\nTraining completed!")
+    metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
 
-    print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
+    # To plot loss and one metric
+    # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
 
-"""Results visualization"""
-print("\nTraining completed!")
-metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
+    class_names = ['sports', 'inactivity quiet/light', 'miscellaneous', 'occupation', 'water activities',
+                   'home activities', 'lawn and garden', 'religious activities', 'winter activities',
+                   'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
+                   'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
+    # plotting.visualize_predictions(model, valid_loader, device, class_names)
 
-# To plot loss and one metric
-# plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names)
 
-class_names = ['sports', 'inactivity quiet/light', 'miscellaneous', 'occupation', 'water activities',
-               'home activities', 'lawn and garden', 'religious activities', 'winter activities',
-               'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
-               'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
-# plotting.visualize_predictions(model, valid_loader, device, class_names)
-
-plotting.plot_metrics_per_class(model, valid_loader, device, class_names)
-
-# evaluate_model(model, test_loader, criterion, device)
-
+    # evaluate_model(model, test_loader, criterion, device)

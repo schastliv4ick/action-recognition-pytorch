@@ -1,28 +1,27 @@
-import subprocess
-import itertools
+import sys
+import os
 
-# Пути к конфигам
-configs = [
-    "configs/config1.py",
-    # "configs/config2.py",
-    # "configs/config3.py"
+# Установка project root в путь
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+from launched_trainer import train_model  # импортируем функцию, которую выделили
+import models.__all_models as all_models
+
+# Загружаем нужные конфиги
+from configs import config1, config2, config3
+
+# Параметры запуска: список моделей и соответствующих конфигов
+launch_list = [
+    {"model": all_models.PoseCNNsc_13_24_35_stage1, "config": config1},
+    {"model": all_models.PoseCNNsc_stage2, "config": config2},
+    {"model": all_models.PoseCNNsc_stage3, "config": config3},
 ]
 
-# Названия моделей, допустим ты по ним переключаешь логику в launched_trainer.py
-models = [
-    "PoseCNNsc",
-    # "PoseCNNv2_Lite",
-    # "PoseCNNsc_13_35"
-]
-
-# Перебираем все комбинации
-for model_name, config_path in itertools.product(models, configs):
-    print(f"\nЗапуск модели {model_name} с конфигом {config_path}...\n")
-
-    result = subprocess.run(
-        ["python", "launched_trainer.py", "--model", model_name, "--config", config_path],
-        capture_output=True,
-        text=True
-    )
-
-    print(f"Готово: {model_name} + {config_path}")
+if __name__ == "__main__":
+    for entry in launch_list:
+        print("\n===============================================================================")
+        print(f"Запуск модели: {entry['model'].__name__} с конфигом {entry['config'].__name__}")
+        print("===============================================================================\n")
+        train_model(config=entry['config'], model_class=entry['model'])

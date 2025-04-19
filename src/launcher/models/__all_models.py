@@ -1,0 +1,3 @@
+from .stage1 import PoseCNNsc_13_24_35 as PoseCNNsc_13_24_35_stage1
+from .stage2 import PoseCNNsc as PoseCNNsc_stage2
+from .stage3 import PoseCNNsc as PoseCNNsc_stage3
