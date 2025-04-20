@@ -11,13 +11,13 @@ from src.launcher.launched_trainer import train_model
 import src.launcher.models.__all_models as all_models
 
 # Uploading configs of models to train
-from src.launcher.configs import config1, config2, config3, config4, config5
+from src.launcher.configs import config1, config2, config3, config4, config5, config7, config8, config9
 
 # Setting up models and configs
 launch_list = [
-    # {"model": all_models.PoseCNNsc_13_24_35_stage1, "config": config1},
-    {"model": all_models.PoseCNNsc_stage111, "config": config4},
-    {"model": all_models.PoseCNNsc_stage111, "config": config5},
+    {"model": all_models.DensePoseCNN_stage7, "config": config7},
+    {"model": all_models.DensePoseCNN_stage7, "config": config8},
+    {"model": all_models.PoseCNNsc_stage2, "config": config9},
 ]
 
 if __name__ == "__main__":

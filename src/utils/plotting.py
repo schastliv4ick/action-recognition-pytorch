@@ -62,8 +62,6 @@ def plot_metrics(train_metrics_history: defaultdict, valid_metrics_history: defa
         print("Error: No training loss data found!")
         return
 
-    os.makedirs(save_path, exist_ok=True)
-
     epochs = range(1, len(train_metrics_history["loss"]) + 1)
     metrics_to_plot_without_loss = [metric for metric in metrics_to_plot if metric != "loss"]
     total_metrics = len(metrics_to_plot_without_loss) + 1
@@ -84,6 +82,7 @@ def plot_metrics(train_metrics_history: defaultdict, valid_metrics_history: defa
 
     plt.tight_layout()
     if save_path:
+        os.makedirs(save_path, exist_ok=True)
         plt.savefig(os.path.join(save_path, f"metrics.png"), dpi=300, bbox_inches='tight')
         print("saved metrics")
     plt.close()
@@ -177,8 +176,6 @@ def plot_metrics_per_class(model, data_loader, device, class_names, save_path: s
         print("Error: Empty predictions or targets.")
         return
 
-    os.makedirs(save_path, exist_ok=True)
-
     num_classes = len(class_names)
     class_accuracies = []
     class_precisions = []
@@ -220,6 +217,7 @@ def plot_metrics_per_class(model, data_loader, device, class_names, save_path: s
     plt.grid(True, linestyle='--', alpha=0.5)
 
     if save_path:
+        os.makedirs(save_path, exist_ok=True)
         plt.savefig(os.path.join(save_path, f"distribution_per_classes.png"),
                     dpi=300,
                     bbox_inches='tight')
