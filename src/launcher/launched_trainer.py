@@ -11,12 +11,12 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-import src.dataloader as dataloader
-from src.dataloader import PeopleDataset
+import dataloader as dataloader
+from dataloader import PeopleDataset
 
-from src.utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
-from src.utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
-from src.utils import plotting
+from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
+from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
+from utils import plotting
 
 
 def train_model(config, model_class):
@@ -66,7 +66,7 @@ def train_model(config, model_class):
 
     optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
     if config.SCHEDULER == 'CosineAnnealingWarmRestarts':
-        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_mult=25, eta_min=1e-6)
+        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_0=25, eta_min=1e-6)
     elif config.SCHEDULER == 'CosineAnnealingLR':
         scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=config.NUM_EPOCHS, eta_min=0)
 

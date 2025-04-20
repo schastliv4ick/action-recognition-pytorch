@@ -57,7 +57,7 @@ def plot_metric(metric_name, subplot_num, epochs, train_metric_value, valid_metr
 
 
 def plot_metrics(train_metrics_history: defaultdict, valid_metrics_history: defaultdict,
-                 metrics_to_plot: List[str], save_path=config.SAVE_DIR):
+                 metrics_to_plot: List[str], save_path=config.RESULT_DIR):
     if "loss" not in train_metrics_history or not train_metrics_history["loss"]:
         print("Error: No training loss data found!")
         return
