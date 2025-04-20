@@ -1,7 +1,9 @@
 from torch import Tensor
 from ignite.engine import Events
 from ignite.handlers import ReduceLROnPlateauScheduler
-
+import torch
+import os 
+import config
 from collections import defaultdict
 
 
@@ -97,3 +99,23 @@ def setup_event_handlers(trainer, optimizer,
 
     scheduler = ReduceLROnPlateauScheduler(optimizer, metric_name="loss", factor=0.5, patience=1, threshold=0.05)
     valid_evaluator.add_event_handler(Events.COMPLETED, scheduler)
+
+def save_best_models(current_metrics, model, model_name, best_loss, best_f1):
+    save_info = []
+    os.makedirs(config.SAVE_DIR, exist_ok=True)
+    if current_metrics['loss'] < best_loss:
+        best_loss = current_metrics['loss']
+        loss_path = os.path.join(config.SAVE_DIR, f"{model_name}_best_loss.pt")
+        torch.save(model.state_dict(), loss_path)
+        save_info.append(f"Loss: {best_loss:.4f}")
+    
+    if current_metrics['f1'] > best_f1:
+        best_f1 = current_metrics['f1']
+        f1_path = os.path.join(config.SAVE_DIR, f'{model_name}_best_f1.pt')
+        torch.save(model.state_dict(), f1_path)
+        save_info.append(f"F1: {best_f1:.4f}")
+
+    if save_info:
+        print(f"Saved new best model(s) - {' | '.join(save_info)}")
+    
+    return best_loss, best_f1

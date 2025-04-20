@@ -5,6 +5,7 @@ from torch import Tensor, no_grad, argmax
 from torch import max as torch_max
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
+import config
 from random import sample as random_sample
 import math
 from collections import defaultdict
@@ -56,7 +57,7 @@ def plot_metric(metric_name, subplot_num, epochs, train_metric_value, valid_metr
 
 
 def plot_metrics(train_metrics_history: defaultdict, valid_metrics_history: defaultdict,
-                 metrics_to_plot: List[str], save_path: str = None):
+                 metrics_to_plot: List[str], save_path=config.SAVE_DIR):
     if "loss" not in train_metrics_history or not train_metrics_history["loss"]:
         print("Error: No training loss data found!")
         return

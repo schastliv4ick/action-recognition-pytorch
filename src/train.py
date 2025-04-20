@@ -10,7 +10,7 @@ import dataloader
 from dataloader import PeopleDataset
 
 from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
-from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
+from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary, save_best_models
 from utils import plotting
 
 import sys
@@ -64,9 +64,9 @@ if __name__ == "__main__":
     class_weights = class_weights.to(device)
 
     optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
-    
+
     if config.SCHEDULER == 'CosineAnnealingWarmRestarts':
-        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_mult=25, eta_min=1e-6)
+        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_0=25, eta_min=1e-6)
     elif config.SCHEDULER == 'CosineAnnealingLR':
         scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=config.NUM_EPOCHS, eta_min=0)
 
@@ -77,6 +77,10 @@ if __name__ == "__main__":
     train_evaluator, valid_evaluator = setup_evaluators(model, criterion, device)
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
+
+    best_valid_loss = float('inf')
+    best_valid_f1 = 0.0
+    model_name = model.__class__.__name__
 
     print(f"\nStarting training for {config.NUM_EPOCHS} epochs...")
 
@@ -91,13 +95,20 @@ if __name__ == "__main__":
         if valid_loader:
             valid_metrics_dict = calculate_epoch_metrics(model, valid_loader, criterion, device)
             add_metrics_to_history(valid_metrics_history, valid_metrics_dict)
+            best_valid_loss, best_valid_f1 = save_best_models(
+                current_metrics=valid_metrics_dict,
+                model=model,
+                model_name=model_name,
+                best_loss=best_valid_loss, 
+                best_f1=best_valid_f1
+            )
 
         print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
 
     """Results visualization"""
     print("\nTraining completed!")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot, save_path=config.SAVE_DIR)
 
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
