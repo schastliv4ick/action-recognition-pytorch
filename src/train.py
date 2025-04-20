@@ -2,7 +2,7 @@ from tqdm import tqdm
 import torch
 from torch import device, cuda
 from torch.optim import SGD, AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, CosineAnnealingLR
 from torch.nn import CrossEntropyLoss
 from torchsummary import summary
 from sklearn.metrics import precision_score, recall_score, f1_score
@@ -81,7 +81,11 @@ if __name__ == "__main__":
     class_weights = class_weights.to(device)
 
     optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
-    scheduler = CosineAnnealingLR(optimizer, T_max=50)
+    scheduler = CosineAnnealingLR(
+    optimizer=optimizer,
+    T_max=config.NUM_EPOCHS,  # Полный цикл на всё обучение
+    eta_min=1e-6              # Минимальный LR
+    )
 
     criterion = CrossEntropyLoss(weight=class_weights.to(device))
 
@@ -170,7 +174,7 @@ if __name__ == "__main__":
             print(f"Valid - Loss: {val_loss:.4f}, Acc: {val_accuracy:.2f}%,"
                   f" Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}")
 
-    """Results visualization"""
+    """Results visualization""" 
     print("\nTraining completed!")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
     plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
