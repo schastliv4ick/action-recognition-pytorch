@@ -7,4 +7,4 @@ from .PoseCNNsc import PoseCNNsc
 from .PoseCNNsc_13_35 import PoseCNNsc_13_35
 from .PoseCNNsc_13_24_35 import PoseCNNsc_13_24_35
 from .PoseCNNv2_Lite import PoseCNNv2_Lite
-from.DensePoseCNN import DensePoseCNN
+from .DensePoseCNN import DensePoseCNN
