@@ -15,7 +15,7 @@ from src.launcher.configs import config1, config2, config3
 
 # Setting up models and configs
 launch_list = [
-    {"model": all_models.PoseCNNsc_13_24_35_stage1, "config": config1},
+    # {"model": all_models.PoseCNNsc_13_24_35_stage1, "config": config1},
     {"model": all_models.PoseCNNsc_stage2, "config": config2},
     {"model": all_models.PoseCNNsc_stage3, "config": config3},
 ]
