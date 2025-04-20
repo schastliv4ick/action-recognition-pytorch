@@ -11,7 +11,7 @@ from src.launcher.launched_trainer import train_model
 import src.launcher.models.__all_models as all_models
 
 # Uploading configs of models to train
-from src.launcher.configs import *
+from src.launcher.configs import config1, config2, config3, config4, config5
 
 # Setting up models and configs
 launch_list = [
@@ -28,4 +28,3 @@ if __name__ == "__main__":
         print(f"    Launching the model: {entry['model'].__name__} with config {entry['config'].__name__}")
         print("===================================================================================\n")
         train_model(config=entry['config'], model_class=entry['model'])
-
