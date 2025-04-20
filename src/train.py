@@ -1,7 +1,7 @@
 import torch
 from torch import device, cuda
 from torch.optim import SGD, AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, CosineAnnealingWarmRestarts
 from torch.nn import CrossEntropyLoss
 from torchsummary import summary
 
@@ -64,7 +64,11 @@ if __name__ == "__main__":
     class_weights = class_weights.to(device)
 
     optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
-    scheduler = CosineAnnealingLR(optimizer, T_max=50)
+    
+    if config.SCHEDULER == 'CosineAnnealingWarmRestarts':
+        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_mult=25, eta_min=1e-6)
+    elif config.SCHEDULER == 'CosineAnnealingLR':
+        scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=config.NUM_EPOCHS, eta_min=0)
 
     criterion = CrossEntropyLoss(weight=class_weights.to(device))
 
