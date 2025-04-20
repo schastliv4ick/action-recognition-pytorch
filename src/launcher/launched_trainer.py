@@ -11,7 +11,6 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from models.__all_models import *
 import src.dataloader as dataloader
 from src.dataloader import PeopleDataset
 
