@@ -5,9 +5,9 @@ LEARNING_RATE = 0.001
 MOMENTUM = 0.9
 NUM_EPOCHS = 50
 
-WEIGHT_DECAY = 1e-3
+WEIGHT_DECAY = 1e-5
 
 TRAIN_AUGMENTATION_TYPE = "basic"
 VALID_AUGMENTATION_TYPE = None
 
-MODEL = "PoseCNNsc" # from models/stage3.py import PoseCNNsc
+MODEL = "PoseCNNsc"
