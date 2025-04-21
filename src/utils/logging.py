@@ -3,7 +3,6 @@ from ignite.engine import Events
 from ignite.handlers import ReduceLROnPlateauScheduler
 import torch
 import os
-import config
 from collections import defaultdict
 
 
