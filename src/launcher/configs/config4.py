@@ -5,7 +5,7 @@ SAVE_DIR = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\src\\saves
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-NUM_EPOCHS = 200
+NUM_EPOCHS = 150
 
 SCHEDULER = 'CosineAnnealingWarmRestarts'
 
