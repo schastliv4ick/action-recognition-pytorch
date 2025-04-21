@@ -100,9 +100,9 @@ def setup_event_handlers(trainer, optimizer,
     scheduler = ReduceLROnPlateauScheduler(optimizer, metric_name="loss", factor=0.5, patience=1, threshold=0.05)
     valid_evaluator.add_event_handler(Events.COMPLETED, scheduler)
 
-def save_best_models(current_metrics, model, model_name, best_loss, best_f1):
+def save_best_models(current_metrics, model, model_name, best_loss, best_f1, save_dir):
     save_info = []
-    os.makedirs(config.SAVE_DIR, exist_ok=True)
+    os.makedirs(save_dir, exist_ok=True)
     if current_metrics['loss'] < best_loss:
         best_loss = current_metrics['loss']
         loss_path = os.path.join(config.SAVE_DIR, f"{model_name}_best_loss.pt")

@@ -12,7 +12,7 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 import dataloader as dataloader
-from src.dataloader import PeopleDataset
+from dataloader import PeopleDataset
 
 from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
 from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary, save_best_models
@@ -114,7 +114,8 @@ def train_model(config, model_class, class_exclusion_threshold=None):
                 model=model,
                 model_name=model_name,
                 best_loss=best_valid_loss,
-                best_f1=best_valid_f1
+                best_f1=best_valid_f1,
+                save_dir=config.SAVE_DIR
             )
 
         print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
