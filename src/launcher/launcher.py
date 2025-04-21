@@ -31,5 +31,5 @@ if __name__ == "__main__":
         model_class = entry['model']
 
         # train_model(config=config, model_class=model_class, rare_classes_threshold=0.025)
-        train_model(config=config, model_class=model_class, rare_classes_threshold=0.02)
+        train_model(config=config, model_class=model_class, class_exclusion_threshold=0.02)
 

@@ -19,7 +19,7 @@ from utils.logging import setup_metrics_history, add_metrics_to_history, print_e
 from utils import plotting
 
 
-def train_model(config, model_class, rare_classes_threshold=None):
+def train_model(config, model_class, class_exclusion_threshold=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
@@ -30,11 +30,11 @@ def train_model(config, model_class, rare_classes_threshold=None):
     print("Loading the dataset...")
     full_dataset = dataloader.PeopleDataset(config.PATH_TO_DATA)
 
-    if rare_classes_threshold:
+    if class_exclusion_threshold:
         full_dataset.print_class_distribution()
         print("Removing rare classes")
         # Option 1: Filter by minimum threshold of class in dataset
-        full_dataset.filter_by_min_threshold(min_threshold=rare_classes_threshold)
+        full_dataset.filter_by_min_threshold(min_threshold=class_exclusion_threshold)
 
         # Option 2: Filter by explicitly excluding class names
         # full_dataset.filter_by_excluded_classes(classes_to_exclude=['water activities', 'religious activities'])
