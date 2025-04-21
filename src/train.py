@@ -23,12 +23,6 @@ if project_root not in sys.path:
 import config
 
 if __name__ == "__main__":
-
-    RESULTS_DIR = os.path.join("results", config.__name__)
-    print("RESULTS_DIR", RESULTS_DIR)
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-
-
     device = device("cuda" if cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
@@ -113,8 +107,10 @@ if __name__ == "__main__":
 
     """Results visualization"""
     print("\nTraining completed!")
+    print(f"Results location: {config.RESULT_DIR}")
+    print("Saving results...")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot=metrics_to_plot)
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot, save_path=config.RESULT_DIR)
 
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
@@ -125,6 +121,7 @@ if __name__ == "__main__":
                    'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
     # plotting.visualize_predictions(model, valid_loader, device, class_names)
 
-    plotting.plot_metrics_per_class(model, valid_loader, device, class_names, save_path=RESULTS_DIR)
+    print(f"\nPlotting metrics per class...")
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names, save_path=config.RESULT_DIR)
 
     # evaluate_model(model, test_loader, criterion, device)
