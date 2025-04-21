@@ -60,8 +60,8 @@ class PeopleDataset(Dataset):
         class_counts = Counter(self.labels)
         total_samples = len(self.labels)
         print("Class Distribution:")
-        for i, class_name in enumerate(self.class_names):
-            count = class_counts.get(i, 0)  # Get count, default to 0 if class not present
+        for class_name in self.class_names:
+            count = class_counts.get(class_name, 0)  # Get count using the class name
             proportion = count / total_samples if total_samples > 0 else 0
             print(f"  Class '{class_name}': {count} samples ({proportion:.4f})")
 
@@ -219,6 +219,14 @@ if __name__ == "__main__":
     transforms = get_transforms()
 
     full_dataset = PeopleDataset(data_dir, transform=transforms)
+
+    # Example of using filter_by_classes
+    classes_to_exclude = ['inactivity quiet/light', 'religious activities', 'running', 'self care', 'volunteer activities', 'transportation']
+    print("Excluding selected classes")
+    full_dataset.filter_by_classes(classes_to_exclude)
+    full_dataset.print_class_distribution()
+    print(f"Number of classes: {full_dataset.get_num_classes()}")
+    print("Setting up data loaders with batch_size=32...")
 
     train_set, valid_set = split_dataset(full_dataset, valid_ratio=0.2)
 
