@@ -1,9 +1,11 @@
-PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
+PATH_TO_DATA = "V:\\ML\\yandex-ml-2025\\data"
+RESULT_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\DensePoseCNN_#7"
+SAVE_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\DensePoseCNN_#7"
 
-BATCH_SIZE = 32
+BATCH_SIZE = 8
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-NUM_EPOCHS = 50
+NUM_EPOCHS = 3
 
 SCHEDULER = 'CosineAnnealingLR'
 

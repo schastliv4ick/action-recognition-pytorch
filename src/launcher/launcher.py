@@ -16,8 +16,8 @@ from src.launcher.configs import config1, config2, config3, config4, config5, co
 # Setting up models and configs
 launch_list = [
     {"model": all_models.DensePoseCNN_stage7, "config": config7},
-    {"model": all_models.DensePoseCNN_stage7, "config": config8},
-    {"model": all_models.PoseCNNsc_stage2, "config": config9},
+    # {"model": all_models.DensePoseCNN_stage7, "config": config8},
+    # {"model": all_models.PoseCNNsc_stage2, "config": config9},
 ]
 
 if __name__ == "__main__":
@@ -32,5 +32,5 @@ if __name__ == "__main__":
         model_class = entry['model']
 
         # train_model(config=config, model_class=model_class, rare_classes_threshold=0.025)
-        train_model(config=config, model_class=model_class, class_exclusion_threshold=0.02)
+        train_model(config, model_class, class_exclusion_threshold=0.02)
 

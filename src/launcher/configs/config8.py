@@ -1,4 +1,6 @@
-PATH_TO_DATA = "V:\ML\yandex-ml-2025\data"
+PATH_TO_DATA = "V:\\ML\\yandex-ml-2025\\data"
+RESULT_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\DensePoseCNN_#8"
+SAVE_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\DensePoseCNN_#8"
 
 BATCH_SIZE = 64
 LEARNING_RATE = 0.001

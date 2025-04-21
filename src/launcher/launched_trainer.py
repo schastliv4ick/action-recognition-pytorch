@@ -114,7 +114,8 @@ def train_model(config, model_class, class_exclusion_threshold=None):
                 model=model,
                 model_name=model_name,
                 best_loss=best_valid_loss,
-                best_f1=best_valid_f1
+                best_f1=best_valid_f1,
+                save_dir=config.SAVE_DIR
             )
 
         print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
