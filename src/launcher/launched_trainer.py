@@ -19,7 +19,7 @@ from utils.logging import setup_metrics_history, add_metrics_to_history, print_e
 from utils import plotting
 
 
-def train_model(config, model_class, class_exclusion_threshold=None):
+def train_model(config, model_class, class_exclusion_threshold=None, classes_to_exclude=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
 
@@ -29,16 +29,19 @@ def train_model(config, model_class, class_exclusion_threshold=None):
 
     print("Loading the dataset...")
     full_dataset = dataloader.PeopleDataset(config.PATH_TO_DATA)
+    full_dataset.print_class_distribution()
 
     if class_exclusion_threshold:
-        full_dataset.print_class_distribution()
         print("Removing rare classes")
         # Option 1: Filter by minimum threshold of class in dataset
         full_dataset.filter_by_min_threshold(min_threshold=class_exclusion_threshold)
 
+    if classes_to_exclude:
+        print("Excluding selected classes")
         # Option 2: Filter by explicitly excluding class names
-        # full_dataset.filter_by_excluded_classes(classes_to_exclude=['water activities', 'religious activities'])
+        full_dataset.filter_by_classes(classes_to_exclude=classes_to_exclude)
 
+    if classes_to_exclude or class_exclusion_threshold:
         # Rebuild class_to_index AFTER filtering
         full_dataset.class_names = sorted(
             list(set(full_dataset.labels)))  # Get unique remaining labels (which are strings) and sort them

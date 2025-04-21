@@ -29,5 +29,8 @@ if __name__ == "__main__":
         config = entry['config']
         model_class = entry['model']
 
-        train_model(config=config, model_class=model_class, rare_classes_threshold=0.025)
+        classes_to_exclude = ['inactivity quiet/light', 'religious activities', 'running',
+                              'self care', 'volunteer activities', 'transportation']
+
+        train_model(config=config, model_class=model_class, classes_to_exclude=classes_to_exclude)
         # train_model(config, model_class)

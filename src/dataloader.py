@@ -33,29 +33,27 @@ class PeopleDataset(Dataset):
         img_path = os.path.join(self.img_dir, img_name)
         image = Image.open(img_path).convert('RGB')
 
-        img_id = os.path.splitext(img_name)[0]
-        label_index = self.labels_df[self.labels_df['img_id'].astype(str) == img_id]['target_feature'].values[0]
-        # label = self.index_to_class[label_index]  # Use mapping here
-        label = torch.tensor(label_index, dtype=torch.long)
+        label_str = self.labels[idx]  # Get the string label
+        label_int = self.class_to_index[label_str]  # Convert to integer using the mapping
+        label = torch.tensor(label_int, dtype=torch.long)
 
         if self.transform:
             image = self.transform(image)
 
         return image, label
-
     def get_num_classes(self):
         """Returns the number of unique classes in the dataset after filtering."""
         return len(set(self.labels))
 
     def _load_data(self):
-        """Loads image file paths and their corresponding labels."""
+        """Loads image file paths and their corresponding string labels."""
         for img_name in os.listdir(self.img_dir):
             if img_name.endswith('.jpg'):
                 img_id = os.path.splitext(img_name)[0]
-                label = self.labels_df[self.labels_df['img_id'].astype(str) == img_id]['target_feature'].values[
-                    0]  # Keep as string
+                label_index = self.labels_df[self.labels_df['img_id'].astype(str) == img_id]['target_feature'].values[0]
+                label_str = self.class_names[label_index]  # Get the string label
                 self.image_files.append(img_name)
-                self.labels.append(label)
+                self.labels.append(label_str)  # Store string label
 
     def print_class_distribution(self):
         """Prints the number of samples and proportion for each class in the dataset."""
@@ -109,7 +107,7 @@ class PeopleDataset(Dataset):
         if excluded_classes_log:
             for cls, count in excluded_classes_log.items():
                 proportion = class_proportions[cls]
-                print(f"  Excluded class '{cls}' with {count} samples (proportion: {proportion:.4f}).")
+                print(f"  Excluded images of class '{cls}' with {count} samples (proportion: {proportion:.4f}).")
         else:
             print("  No classes excluded based on the minimum proportion threshold.")
         print(f"Dataset size reduced to {len(self.labels)} from {total_samples} samples initially.")
@@ -119,31 +117,34 @@ class PeopleDataset(Dataset):
 
     def filter_by_classes(self, classes_to_exclude):
         """Filters the dataset to remove samples of specified classes and logs excluded classes."""
-        initial_class_counts = Counter(self.labels)
         original_length = len(self.labels)
         filtered_image_files = []
         filtered_labels = []
         excluded_classes_log = {}
 
-        for img_file, label_index in zip(self.image_files, self.labels):
-            class_name = self.class_names[label_index]
-            if class_name not in classes_to_exclude:
+        for img_file, label_str in zip(self.image_files, self.labels):
+            if label_str not in classes_to_exclude:
                 filtered_image_files.append(img_file)
-                filtered_labels.append(label_index)
-            elif class_name in classes_to_exclude and class_name not in excluded_classes_log:
-                excluded_classes_log[class_name] = self.labels.count(label_index)  # Count occurrences of this label
+                filtered_labels.append(label_str)
+            elif label_str in classes_to_exclude and label_str not in excluded_classes_log:
+                excluded_classes_log[label_str] = self.labels.count(label_str)
 
         self.image_files = filtered_image_files
         self.labels = filtered_labels
 
+        # Rebuild class_names and class_to_index
+        self.class_names = sorted(list(set(self.labels)))
+        self.class_to_index = {cls_name: i for i, cls_name in enumerate(self.class_names)}
+        self.index_to_class = {i: cls_name for i, cls_name in enumerate(self.class_names)}
+        print(f"Number of classes after filtering: {len(self.class_names)}")
+
         print(f"Filtering by explicitly excluded classes ({classes_to_exclude}):")
         if excluded_classes_log:
             for cls, count in excluded_classes_log.items():
-                print(f"  Excluded class '{cls}' with {count} samples.")
+                print(f"  Excluded images of class '{cls}' with {count} samples.")
         else:
             print("  No specified classes found in the dataset to exclude.")
         print(f"Dataset size reduced to {len(self.labels)} from {original_length} samples initially.")
-
 
 def get_class_weights(dataset):
     targets = [dataset[i][1].item() for i in range(len(dataset))]
