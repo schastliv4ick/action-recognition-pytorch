@@ -17,7 +17,7 @@ class PoseCNNsc(nn.Module):
 
         self.conv1 = conv_block(3, 32)       # Output: (32, H/2, W/2)
         self.conv2 = conv_block(32, 64)      # Output: (64, H/4, W/4)
-        self.conv3 = conv_block(64, 128, use_dropout=False) # Output: (128, H/8, W/8)
+        self.conv3 = conv_block(64, 128, use_dropout=True) # Output: (128, H/8, W/8)
         self.conv4 = conv_block(128, 256, use_dropout=True)  # Output: (256, H/16, W/16)
         self.conv5 = conv_block(256, 512, use_dropout=True)  # Output: (512, H/32, W/32)
 
