@@ -23,6 +23,7 @@ class PeopleDataset(Dataset):
         self._load_data()
         self.initial_class_counts = Counter(self.labels)
         self.class_to_index = {cls_name: i for i, cls_name in enumerate(self.class_names)}  # Corrected mapping
+        self.index_to_class = {i: cls_name for i, cls_name in enumerate(self.class_names)}
 
     def __len__(self):
         return len(self.image_files)
@@ -33,9 +34,9 @@ class PeopleDataset(Dataset):
         image = Image.open(img_path).convert('RGB')
 
         img_id = os.path.splitext(img_name)[0]
-        label_name = self.labels_df[self.labels_df['img_id'].astype(str) == img_id]['target_feature'].values[0]
-        label = self.class_to_index[label_name]  # Use mapping here
-        label = torch.tensor(label, dtype=torch.long)
+        label_index = self.labels_df[self.labels_df['img_id'].astype(str) == img_id]['target_feature'].values[0]
+        # label = self.index_to_class[label_index]  # Use mapping here
+        label = torch.tensor(label_index, dtype=torch.long)
 
         if self.transform:
             image = self.transform(image)
