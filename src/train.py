@@ -14,4 +14,4 @@ if __name__ == "__main__":
     model_to_train = DensePoseCNN
 
     # Call the training function from launched_trainer.py
-    launcher.train_model(config, model_to_train, num_classes=20)
+    launcher.train_model(config, model_to_train)

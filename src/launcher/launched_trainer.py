@@ -12,28 +12,38 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 import dataloader as dataloader
-from dataloader import PeopleDataset
+from src.dataloader import PeopleDataset
 
 from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
 from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary, save_best_models
 from utils import plotting
 
 
-def train_model(config, model_class, num_classes=20):
+def train_model(config, model_class, rare_classes_threshold=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
-
-    model = model_class(num_classes=num_classes)
-    model.to(device)
-    summary(model, (3, 288, 512))
-    print("\n")
 
     """Preparing the data"""
     train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
     valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
 
     print("Loading the dataset...")
-    full_dataset = PeopleDataset(config.PATH_TO_DATA)
+    full_dataset = dataloader.PeopleDataset(config.PATH_TO_DATA)
+
+    if rare_classes_threshold:
+        full_dataset.print_class_distribution()
+        print("Removing rare classes")
+        # Option 1: Filter by minimum threshold of class in dataset
+        full_dataset.filter_by_min_threshold(min_threshold=rare_classes_threshold)
+
+        # Option 2: Filter by explicitly excluding class names
+        # full_dataset.filter_by_excluded_classes(classes_to_exclude=['water activities', 'religious activities'])
+
+        # Rebuild class_to_index AFTER filtering
+        full_dataset.class_names = sorted(
+            list(set(full_dataset.labels)))  # Get unique remaining labels (which are strings) and sort them
+        full_dataset.class_to_index = {cls_name: i for i, cls_name in enumerate(full_dataset.class_names)}
+        print(f"Number of classes after filtering: {len(full_dataset.class_names)}")  # Verify the number of classes
 
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
     train_set.dataset.transform = train_transforms
@@ -50,7 +60,13 @@ def train_model(config, model_class, num_classes=20):
     )
 
     """Training setup"""
-    num_classes = 20
+    num_classes = len(full_dataset.class_names)  # Use the updated class_names
+    print(f"Number of classes: {num_classes}")
+
+    model = model_class(num_classes=num_classes)
+    model.to(device)
+    summary(model, (3, 288, 512))
+    print("\n")
 
     train_indices = train_set.indices
     train_targets = [full_dataset[idx][1] for idx in train_indices]
@@ -113,10 +129,7 @@ def train_model(config, model_class, num_classes=20):
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
 
-    class_names = ['sports', 'inactivity quiet/light', 'miscellaneous', 'occupation', 'water activities',
-                   'home activities', 'lawn and garden', 'religious activities', 'winter activities',
-                   'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
-                   'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
+    class_names = full_dataset.class_names  # Use the updated class_names
     # plotting.visualize_predictions(model, valid_loader, device, class_names)
 
     print(f"\nPlotting metrics per class...")

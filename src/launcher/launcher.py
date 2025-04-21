@@ -26,4 +26,10 @@ if __name__ == "__main__":
         print("\n===================================================================================")
         print(f"    Launching the model: {entry['model'].__name__} with config {entry['config'].__name__}")
         print("===================================================================================\n")
-        train_model(config=entry['config'], model_class=entry['model'])
+
+        config = entry['config']
+        model_class = entry['model']
+
+        # train_model(config=config, model_class=model_class, rare_classes_threshold=0.025)
+        train_model(config=config, model_class=model_class, rare_classes_threshold=0.02)
+
