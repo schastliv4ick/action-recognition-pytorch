@@ -1,15 +1,15 @@
 PATH_TO_DATA = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\data\\human_poses_data"
-RESULT_DIR = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\src\\saves"
-SAVE_DIR = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\src\\saves"
+RESULT_DIR = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\src\\saves\\final2"
+SAVE_DIR = "C:\\Users\\Semyon\\YandexLyceum\\project\\yandex-ml-2025\\src\\saves\\final2"
 
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
 NUM_EPOCHS = 150
 
-SCHEDULER = 'CosineAnnealingLR'
+SCHEDULER = 'CosineAnnealingWarmRestarts'
 
-WEIGHT_DECAY = 3e-3
+WEIGHT_DECAY = 1e-2
 
 TRAIN_AUGMENTATION_TYPE = "basic"
 VALID_AUGMENTATION_TYPE = None
