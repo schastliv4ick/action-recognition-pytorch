@@ -7,17 +7,17 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from src.launcher.launched_trainer import train_model
-import src.launcher.models.__all_models as all_models
+from launched_trainer import train_model
+import models.__all_models as all_models
 
 # Uploading configs of models to train
-from src.launcher.configs import config1, config2, config3, config4, config5, config7, config8, config9, config10, config11
+from src.launcher.configs import config1, config2, config3, config4, config5, config7, config8, config9
 
 # Setting up models and configs
 launch_list = [
-    {"model": all_models.PoseCNNv2_stage10, "config": config10},
-    {"model": all_models.PoseCNNv2_stage10, "config": config11},
-    # {"model": all_models.PoseCNNsc_stage2, "config": config9},
+    {"model": all_models.DensePoseCNN_stage7, "config": config7},
+    {"model": all_models.DensePoseCNN_stage7, "config": config8},
+    {"model": all_models.PoseCNNsc_stage2, "config": config9},
 ]
 
 if __name__ == "__main__":
@@ -27,4 +27,10 @@ if __name__ == "__main__":
         print("\n===================================================================================")
         print(f"    Launching the model: {entry['model'].__name__} with config {entry['config'].__name__}")
         print("===================================================================================\n")
-        train_model(config=entry['config'], model_class=entry['model'])
+
+        config = entry['config']
+        model_class = entry['model']
+
+        # train_model(config=config, model_class=model_class, rare_classes_threshold=0.025)
+        train_model(config=config, model_class=model_class, class_exclusion_threshold=0.02)
+

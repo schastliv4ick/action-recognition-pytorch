@@ -11,33 +11,39 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-import src.dataloader as dataloader
+import dataloader as dataloader
 from src.dataloader import PeopleDataset
 
-from src.utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
-from src.utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary
-from src.utils import plotting
+from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
+from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary, save_best_models
+from utils import plotting
 
 
-def train_model(config, model_class):
-    RESULTS_DIR = os.path.join("results", config.__name__)
-    print("RESULTS_DIR", RESULTS_DIR)
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-
+def train_model(config, model_class, class_exclusion_threshold=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}\n")
-
-    model = model_class(num_classes=20)
-    model.to(device)
-    summary(model, (3, 288, 512))
-    print("\n")
 
     """Preparing the data"""
     train_transforms = dataloader.get_transforms(augmentation_type=config.TRAIN_AUGMENTATION_TYPE)
     valid_transforms = dataloader.get_transforms(augmentation_type=config.VALID_AUGMENTATION_TYPE)
 
     print("Loading the dataset...")
-    full_dataset = PeopleDataset(config.PATH_TO_DATA)
+    full_dataset = dataloader.PeopleDataset(config.PATH_TO_DATA)
+
+    if class_exclusion_threshold:
+        full_dataset.print_class_distribution()
+        print("Removing rare classes")
+        # Option 1: Filter by minimum threshold of class in dataset
+        full_dataset.filter_by_min_threshold(min_threshold=class_exclusion_threshold)
+
+        # Option 2: Filter by explicitly excluding class names
+        # full_dataset.filter_by_excluded_classes(classes_to_exclude=['water activities', 'religious activities'])
+
+        # Rebuild class_to_index AFTER filtering
+        full_dataset.class_names = sorted(
+            list(set(full_dataset.labels)))  # Get unique remaining labels (which are strings) and sort them
+        full_dataset.class_to_index = {cls_name: i for i, cls_name in enumerate(full_dataset.class_names)}
+        print(f"Number of classes after filtering: {len(full_dataset.class_names)}")  # Verify the number of classes
 
     train_set, valid_set = dataloader.split_dataset(full_dataset, valid_ratio=0.2)
     train_set.dataset.transform = train_transforms
@@ -54,7 +60,13 @@ def train_model(config, model_class):
     )
 
     """Training setup"""
-    num_classes = 20
+    num_classes = len(full_dataset.class_names)  # Use the updated class_names
+    print(f"Number of classes: {num_classes}")
+
+    model = model_class(num_classes=num_classes)
+    model.to(device)
+    summary(model, (3, 288, 512))
+    print("\n")
 
     train_indices = train_set.indices
     train_targets = [full_dataset[idx][1] for idx in train_indices]
@@ -65,8 +77,9 @@ def train_model(config, model_class):
     class_weights = class_weights.to(device)
 
     optimizer = AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY)
+
     if config.SCHEDULER == 'CosineAnnealingWarmRestarts':
-        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_mult=25, eta_min=1e-6)
+        scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer, T_0=25, eta_min=1e-6)
     elif config.SCHEDULER == 'CosineAnnealingLR':
         scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=config.NUM_EPOCHS, eta_min=0)
 
@@ -77,6 +90,10 @@ def train_model(config, model_class):
     train_evaluator, valid_evaluator = setup_evaluators(model, criterion, device)
 
     train_metrics_history, valid_metrics_history = setup_metrics_history()
+
+    best_valid_loss = float('inf')
+    best_valid_f1 = 0.0
+    model_name = model.__class__.__name__
 
     print(f"\nStarting training for {config.NUM_EPOCHS} epochs...")
 
@@ -92,23 +109,30 @@ def train_model(config, model_class):
         if valid_loader:
             valid_metrics_dict = calculate_epoch_metrics(model, valid_loader, criterion, device)
             add_metrics_to_history(valid_metrics_history, valid_metrics_dict)
+            best_valid_loss, best_valid_f1 = save_best_models(
+                current_metrics=valid_metrics_dict,
+                model=model,
+                model_name=model_name,
+                best_loss=best_valid_loss,
+                best_f1=best_valid_f1
+            )
 
         print_epoch_summary(epoch, train_metrics_dict, valid_metrics_dict)
 
     """Results visualization"""
     print("\nTraining completed!")
+    print(f"Results location: {config.RESULT_DIR}")
+    print("Saving results...")
     metrics_to_plot = ['accuracy', 'precision', 'recall', 'f1', 'loss']
-    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot, save_path=RESULTS_DIR)
+    plotting.plot_metrics(train_metrics_history, valid_metrics_history, metrics_to_plot, save_path=config.RESULT_DIR)
 
     # To plot loss and one metric
     # plot_metric_and_loss(train_metrics_history, valid_metrics_history, "accuracy")
 
-    class_names = ['sports', 'inactivity quiet/light', 'miscellaneous', 'occupation', 'water activities',
-                   'home activities', 'lawn and garden', 'religious activities', 'winter activities',
-                   'conditioning exercise', 'bicycling', 'fishing and hunting', 'dancing', 'walking', 'running',
-                   'self care', 'home repair', 'volunteer activities', 'music playing', 'transportation']
+    class_names = full_dataset.class_names  # Use the updated class_names
     # plotting.visualize_predictions(model, valid_loader, device, class_names)
 
-    plotting.plot_metrics_per_class(model, valid_loader, device, class_names, save_path=RESULTS_DIR)
+    print(f"\nPlotting metrics per class...")
+    plotting.plot_metrics_per_class(model, valid_loader, device, class_names, save_path=config.RESULT_DIR)
 
     # evaluate_model(model, test_loader, criterion, device)
