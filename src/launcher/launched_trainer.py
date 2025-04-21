@@ -12,7 +12,7 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 import dataloader as dataloader
-from src.dataloader import PeopleDataset
+from dataloader import PeopleDataset
 
 from utils.engine import setup_trainer, setup_evaluators, train_epoch_and_get_metrics_dict, calculate_epoch_metrics
 from utils.logging import setup_metrics_history, add_metrics_to_history, print_epoch_summary, save_best_models
