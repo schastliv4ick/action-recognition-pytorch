@@ -15,8 +15,7 @@ from configs import config1, config2, config3, config4, config5, config7, config
 
 # Setting up models and configs
 launch_list = [
-    {"model": all_models.PoseCNNsc_stage111, "config": config4},
-    {"model": all_models.PoseCNNsc_stage111, "config": config5},
+    {"model": all_models.PoseCNNsc_stage111, "config": config4}
 ]
 
 if __name__ == "__main__":
