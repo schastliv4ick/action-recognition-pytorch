@@ -12,7 +12,7 @@ import src.launcher.models.__all_models as all_models
 
 # Uploading configs of models to train
 from src.launcher.configs import config1, config2, config3, config4, config5, config7, config8, config9, config_final_2, \
-    config_final_4, config_final_5
+    config_final_4, config_final_5, config_final_6
 
 # Setting up models and configs
 
@@ -26,7 +26,7 @@ classes_to_exclude_2 = ['inactivity quiet/light', 'religious activities', 'runni
 launch_list = [
     {"model": all_models.PoseCNNsc_final2, "config": config_final_4, "classes_to_exclude": classes_to_exclude_1},
     {"model": all_models.PoseCNNsc_13_24_35_final2, "config": config_final_5, "classes_to_exclude": classes_to_exclude_1},
-    {"model": all_models.PoseCNNsc_13_24_35_final2, "config": config_final_5, "classes_to_exclude": classes_to_exclude_2}
+    {"model": all_models.PoseCNNsc_13_24_35_final2, "config": config_final_6, "classes_to_exclude": classes_to_exclude_2}
 ]
 
 if __name__ == "__main__":

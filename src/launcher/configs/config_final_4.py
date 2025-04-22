@@ -1,6 +1,6 @@
 PATH_TO_DATA = "V:\\ML\\yandex-ml-2025\\data"
-RESULT_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\PoseCNNsc_13_24_35_#test1"
-SAVE_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\PoseCNNsc_13_24_35_#test1"
+RESULT_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\PoseCNNsc_#test1"
+SAVE_DIR = "V:\\ML\\yandex-ml-2025\\src\\saves\\PoseCNNsc_#test1"
 
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
