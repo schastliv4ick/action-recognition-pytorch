@@ -6,12 +6,12 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 import config
-from models.__all_models import DensePoseCNN
-import launcher.launched_trainer as launcher
+from models.__all_models import *
+import launcher.trainer as trainer
 
 if __name__ == "__main__":
     # Specify the model you want to train
     model_to_train = DensePoseCNN
 
-    # Call the training function from launched_trainer.py
-    launcher.train_model(config, model_to_train)
+    # Call the training function from trainer.py
+    trainer.train_model(config, model_to_train)

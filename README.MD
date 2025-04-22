@@ -2,9 +2,8 @@
 
 Журнал запусков моделей: https://docs.google.com/spreadsheets/d/1xD_tEizBcZ15uNz0WjzWm11pJHIbdY5ciPegAEDLorM/edit?usp=sharing
 
-Ноутбук с тренировкой модели: 
-
-Ноутбук с inference тестовых данных на сохранённых весах: 
+Ноутбук с тренировкой модели и ноутбук с inference тестовых данных
+на сохранённых весах находятся в папке `notebooks` 
 
 ## Требования
 
