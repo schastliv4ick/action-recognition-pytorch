@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
-from utils import transforming
+from src.utils import transforming
 from collections import Counter
 
 
