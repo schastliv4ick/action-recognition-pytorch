@@ -1,6 +1,8 @@
 # 18: ML
 
-Журнал запусков моделей: https://docs.google.com/spreadsheets/d/1xD_tEizBcZ15uNz0WjzWm11pJHIbdY5ciPegAEDLorM/edit?usp=sharing
+Журнал запусков моделей: https://docs.google.com/spreadsheets/d/1xD_tEizBcZ15uNz0WjzWm11pJHIbdY5ciPegAEDLorM/
+
+Отчёт о работе: https://docs.google.com/document/d/18YsvIWI6rLImYLuqbDCxFQFiZZ33-gtOa0erGO-YPVA/
 
 ## Ноутбуки
 
